@@ -6,6 +6,12 @@ public class HomeWork1 {
         System.out.println("Результат второго метода: " + checkSum( 7, 3 ) );
         checkPositive( -7 );
         sayHello("Вася");
+
+        int year = 1980;
+        if (isLeapYear(year))
+            System.out.println(year + " год високосный");
+        else
+            System.out.println(year + " год не високосный");
     }
     public static float doCalc(int a, int b, int c, int d) {
         return a * (b + (c / (float)d));
@@ -22,5 +28,12 @@ public class HomeWork1 {
 
     public static void sayHello(String name){
         System.out.println("Привет, " + name + "!");
+    }
+
+    public static boolean isLeapYear(int year){
+        if (year %100 == 0)
+            return (year/100 % 4 == 0);
+        else
+            return (year % 4 == 0);
     }
 }
