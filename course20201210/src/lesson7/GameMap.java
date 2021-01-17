@@ -3,6 +3,7 @@ package lesson7;
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.*;
+import java.util.Arrays;
 import java.util.Random;
 
 public class GameMap extends JPanel {
@@ -60,6 +61,7 @@ public class GameMap extends JPanel {
 
     private long time;
     private boolean onlyAI;
+    private int lastMove = -1;
 
 
     GameMap() {
@@ -143,7 +145,7 @@ public class GameMap extends JPanel {
 
         repaint();
 
-        nextTurn(0);
+        nextTurn(lastMove);
     }
 
     @Override
@@ -152,8 +154,8 @@ public class GameMap extends JPanel {
 
         render(g);
 
-        if(onlyAI && gameStatus == GAMESTATUS_STARTED) {
-            nextTurn(0);
+        if (onlyAI && gameStatus == GAMESTATUS_STARTED) {
+            nextTurn(lastMove);
             repaint();
         }
     }
@@ -241,12 +243,16 @@ public class GameMap extends JPanel {
     }
 
     private void makeMove(int x, int y) {
+        System.out.println("Turn №" + (currentTurn + 1) + " '" + player[currentPlayer].getSymbol() +
+                "' moves to " + x + "; " + y);
         table[x][y] = player[currentPlayer].getSymbol();
         turn[x][y] = ++currentTurn;
 
         repaint();
 
-        nextTurn(getPos(x, y));
+        lastMove = getPos(x, y);
+        nextTurn(lastMove);
+
     }
 
     private void initTable() {
@@ -291,7 +297,14 @@ public class GameMap extends JPanel {
                     else
                         break; //нет совпадения >> выходим
                 }
-                if (streak >= win) return true;
+                if (streak >= win) {
+//                    System.out.println("xV = " + xV[i] + " yV = " + yV[i] + " dir = " + direction +
+//                            " x0 = " + x0 + " y0 = " + y0 + " streak = " + streak + " pos = " + pos);
+//                    for (int j = 0; j < table.length; j++) {
+//                        System.out.println("" + Arrays.toString(table[j]));
+//                    }
+                    return true;
+                }
             } while (direction != 1);
         }
 
