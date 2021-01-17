@@ -48,7 +48,7 @@ public class MainWindow extends JFrame {
         setVisible(true);
     }
 
-    public void startGame(int mode, int sizeX, int sizeY, int win){
-        gameMap.startGame(mode, sizeX, sizeY, win);
+    public void startGame(int mode, int sizeX, int sizeY, int win, boolean showTurn){
+        gameMap.startGame(mode, sizeX, sizeY, win, showTurn);
     }
 }
