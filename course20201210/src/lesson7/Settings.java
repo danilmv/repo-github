@@ -10,10 +10,12 @@ import java.awt.event.ActionListener;
 public class Settings extends JDialog {
     private final MainWindow mainWindow;
     private final static int WINDOW_WIDTH = 250;
-    private final static int WINDOW_HEIGHT = 300;
+    private final static int WINDOW_HEIGHT = 320;
 
     private JRadioButton rbtnHVH;
     private JRadioButton rbtnHVA;
+    private JRadioButton rbtnHVAA;
+    private JRadioButton rbtnHVAVA;
     private JSlider sldSizeX;
     private int currentX = GameMap.GAME_SIZE_MIN;
     private JSlider sldSizeY;
@@ -29,7 +31,7 @@ public class Settings extends JDialog {
         setTitle("Настройки");
         setModal(true);
 
-        setLayout(new GridLayout(12,1));
+        setLayout(new GridLayout(14,1));
 
         addFieldsMode();
         addFieldsSize();
@@ -53,13 +55,19 @@ public class Settings extends JDialog {
         pnlTitle.add(lblTitle, BorderLayout.CENTER);
         add(pnlTitle);
 
-        rbtnHVH = new JRadioButton("Человек против человека", false);
-        rbtnHVA = new JRadioButton("Человек против компьютера", true);
+        rbtnHVH = new JRadioButton("Человек vs человек", false);
+        rbtnHVA = new JRadioButton("Человек vs компьютер", true);
+        rbtnHVAA = new JRadioButton("Человек vs компьютер + компьютер", true);
+        rbtnHVAVA = new JRadioButton("Человек vs компьютер vs компьютер", true);
         ButtonGroup bGroup = new ButtonGroup();
         bGroup.add(rbtnHVH);
         bGroup.add(rbtnHVA);
+        bGroup.add(rbtnHVAA);
+        bGroup.add(rbtnHVAVA);
         add(rbtnHVH);
         add(rbtnHVA);
+        add(rbtnHVAA);
+        add(rbtnHVAVA);
     }
 
     private void addFieldsSize(){
@@ -136,6 +144,10 @@ public class Settings extends JDialog {
             currentMode = GameMap.GAME_MODE_HVA;
         else if (rbtnHVH.isSelected())
             currentMode = GameMap.GAME_MODE_HVH;
+        else if (rbtnHVAA.isSelected())
+            currentMode = GameMap.GAME_MODE_HVAA;
+        else if (rbtnHVAVA.isSelected())
+            currentMode = GameMap.GAME_MODE_HVAVA;
         else
             throw new RuntimeException("Неизвестный режим игры");
 
