@@ -1,4 +1,4 @@
-package lesson5.model;
+package J1.lesson5.model;
 
 abstract public class Animal {
     protected String name;

@@ -1,8 +1,4 @@
-package lesson7;
-
-import java.awt.event.WindowAdapter;
-import java.awt.event.WindowEvent;
-import java.awt.event.WindowListener;
+package J1.lesson7;
 
 public class GameLauncher {
     public static void main(String[] args) {

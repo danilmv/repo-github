@@ -1,10 +1,13 @@
-package lesson5.classes;
+package J1.lesson5.classes;
 
-import lesson5.model.Animal;
+import J1.lesson5.model.Animal;
 
-public class Cat extends Animal {
-    public Cat(String name){
-        super(name,200,-1, 2);
+public class Dog extends Animal {
+    public Dog(String name){
+        super(name, 500, 10, 0.5);
+    }
+    public Dog(String name, int maxRunDistance){
+        super(name, maxRunDistance, 10, 0.5);
     }
 
     @Override
@@ -19,10 +22,5 @@ public class Cat extends Animal {
             System.out.println(name + " пробежал(а) " + delta + " метров" + (totalRun==maxRun?" и устал(а)":""));
         else
             System.out.println(name + " не может больше бежать");
-    }
-
-    @Override
-    public void swim(int distance){
-        System.out.println(name + " не умеет плавать!");
     }
 }
