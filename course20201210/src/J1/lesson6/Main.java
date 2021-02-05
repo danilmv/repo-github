@@ -1,9 +1,7 @@
-package lesson6;
+package J1.lesson6;
 
 import java.io.*;
-import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
-import java.util.NoSuchElementException;
 import java.util.Scanner;
 
 public class Main {

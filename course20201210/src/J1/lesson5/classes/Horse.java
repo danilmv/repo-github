@@ -1,6 +1,6 @@
-package lesson5.classes;
+package J1.lesson5.classes;
 
-import lesson5.model.Animal;
+import J1.lesson5.model.Animal;
 
 public class Horse extends Animal {
     public Horse(String name){

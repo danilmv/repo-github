@@ -1,10 +1,10 @@
-package lesson5;
+package J1.lesson5;
 
-import lesson5.classes.Bird;
-import lesson5.classes.Cat;
-import lesson5.classes.Dog;
-import lesson5.classes.Horse;
-import lesson5.model.Animal;
+import J1.lesson5.classes.Bird;
+import J1.lesson5.classes.Cat;
+import J1.lesson5.classes.Dog;
+import J1.lesson5.classes.Horse;
+import J1.lesson5.model.Animal;
 
 public class Main {
     public static void main(String[] args) {

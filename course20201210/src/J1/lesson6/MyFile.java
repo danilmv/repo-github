@@ -1,4 +1,4 @@
-package lesson6;
+package J1.lesson6;
 
 import java.io.*;
 import java.nio.charset.StandardCharsets;
