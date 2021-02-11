@@ -14,7 +14,8 @@ public class ChatClient extends JFrame {
     private JTextArea textArea;
 
     public static void main(String[] args) {
-        new ChatClient();
+        SwingUtilities.invokeLater(ChatClient::new);
+        ChatClient cl = new ChatClient();
     }
 
     public ChatClient() {
@@ -48,6 +49,7 @@ public class ChatClient extends JFrame {
 
         textArea = new JTextArea();
         textArea.setEditable(false);
+        textArea.setLineWrap(true);
         JScrollPane textAreaScrollPane = new JScrollPane(textArea);
         textAreaScrollPane.setBackground(Color.GRAY);
         textAreaScrollPane.setPreferredSize(new Dimension(580, 270));
