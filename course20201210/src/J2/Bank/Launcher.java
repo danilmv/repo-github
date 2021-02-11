@@ -3,6 +3,7 @@ package J2.Bank;
 public class Launcher {
     public static void main(String[] args) {
         BankUI bank = new BankUI();
+//        BankUI bank2 = new BankUI();
 
 //        Bank bank = new Bank();
 //        bank.createAccount("D", "d");
