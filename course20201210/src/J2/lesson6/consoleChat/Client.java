@@ -1,4 +1,4 @@
-package J2.lesson6.cosoleChat;
+package J2.lesson6.consoleChat;
 
 import java.io.BufferedReader;
 import java.io.IOException;
