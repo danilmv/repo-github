@@ -1,15 +1,12 @@
 package J2.lesson6.consoleChat;
 
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStreamReader;
-import java.io.PrintWriter;
+import java.io.*;
 import java.net.Socket;
 import java.util.Scanner;
 
 public class Client {
-    private BufferedReader serverReader;
-    private PrintWriter serverWriter;
+    private DataInputStream serverReader;
+    private DataOutputStream serverWriter;
 
     public static void main(String[] args) {
         new Client();
@@ -23,28 +20,32 @@ public class Client {
         try {
             Socket socket = new Socket("localhost", Server.SERVER_PORT);
             System.out.println("connected to server");
-            serverReader = new BufferedReader(new InputStreamReader(socket.getInputStream()));
-            serverWriter = new PrintWriter(socket.getOutputStream());
+            serverReader = new DataInputStream(socket.getInputStream());
+            serverWriter = new DataOutputStream(socket.getOutputStream());
             new Thread(() -> {
+                Message msg = new Message();
+                String serverMessage;
                 try {
                     while (true) {
-                        String serverMessage = serverReader.readLine();
-                        if (serverMessage.equals(Server.CLIENT_QUITS)) {
-                            serverWriter.println(serverMessage);
-                            serverWriter.flush();
-                            System.out.println("server is shutting down");
-                            break;
+                        msg.parseMessage(serverReader.readUTF());
+                        if (msg.command != null) {
+                            if (msg.command.equals(Message.MESSAGE_CLIENT_QUITS)) {
+                                serverWriter.writeUTF(msg.command);
+                                break;
+                            } else if (msg.command.equals(Message.MESSAGE_CLIENTS_LIST)) {
+                                System.out.println("list of clients: " + msg.message);
+                            } else if (msg.command.equals(Message.MESSAGE_PRIVATE)) {
+                                System.out.println("<private>" + msg.name + " " + msg.message);
+                            }
+                        } else {
+                            System.out.println(msg.message);
                         }
-
-                        System.out.println("we have received a message from the server: " + serverMessage);
                     }
                 } catch (IOException e) {
                     System.err.println("connection error: " + e.getMessage());
                 }
                 System.out.println("we have disconnected");
                 try {
-                    serverWriter.close();
-                    serverReader.close();
                     socket.close();
                 } catch (IOException e) {
                     e.printStackTrace();
@@ -56,8 +57,11 @@ public class Client {
 
                 while (true) {
                     String message = scanner.nextLine();
-                    serverWriter.println(message);
-                    serverWriter.flush();
+                    try {
+                        serverWriter.writeUTF(message);
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
                 }
             });
             scannerThread.setDaemon(true);
