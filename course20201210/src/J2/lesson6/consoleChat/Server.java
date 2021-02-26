@@ -6,88 +6,117 @@ package J2.lesson6.consoleChat;
 // то сообщение передается клиенту и печатается у него в консоли. Есть одна особенность, которую нужно учитывать:
 // клиент или сервер может написать несколько сообщений подряд. Такую ситуацию необходимо корректно обработать.
 
-//Разобраться с кодом с занятия: он является фундаментом проекта-чата
-//*ВАЖНО! * Сервер общается только с одним клиентом, т.е. не нужно запускать цикл, который будет ожидать
-// второго/третьего/n-го клиентов
+//2. *Реализовать личные сообщения так: если клиент пишет «/w nick3 Привет», то только клиенту с ником nick3 должно
+// прийти сообщение «Привет».
 
-import java.io.BufferedReader;
 import java.io.IOException;
-import java.io.InputStreamReader;
-import java.io.PrintWriter;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Scanner;
 
 public class Server {
     public static final int SERVER_PORT = 5000;
-    public static final String CLIENT_QUITS = "/buy-buy";
 
-    private BufferedReader clientReader;
-    private PrintWriter clientWriter;
+    private int clientID = 0;
+    private boolean serverWorks = true;
+
+    private Thread mainThread;
+    private ServerSocket serverSocket;
+
+    private List<ClientHandler> clients = new ArrayList<>();
 
     public static void main(String[] args) {
         new Server();
     }
 
-    public Server(){
+    public Server() {
         startServer();
     }
 
     private void startServer() {
         try {
-            ServerSocket serverSocket = new ServerSocket(SERVER_PORT);
+            mainThread = Thread.currentThread();
+            startScanner();
+
+            serverSocket = new ServerSocket(SERVER_PORT);
             System.out.println("Waiting for a clint...");
-            Socket client = serverSocket.accept();
-            clientReader = new BufferedReader(new InputStreamReader(client.getInputStream()));
-            clientWriter = new PrintWriter(client.getOutputStream());
-            System.out.println("Client has connected!");
+            while (serverWorks) {
 
-            new Thread(() -> {
-                try {
-                    while (true) {
-                        String clientMessage = clientReader.readLine();
+                Socket client = serverSocket.accept();
+                new ClientHandler(client, "Client" + ++clientID, this);
+            }
 
-                        if (clientMessage.equals(CLIENT_QUITS)) {
-                            clientWriter.println(CLIENT_QUITS);
-                            clientWriter.flush();
-                            break;
-                        }
-
-                        System.out.println("Client writes: " + clientMessage);
-
-                        clientWriter.println("Server has received your message: " + clientMessage);
-                        clientWriter.flush();
-                    }
-                } catch (IOException e) {
-                    System.err.println("connection error: " + e.getMessage());
-                }
-                System.out.println("Client disconnected.");
-                System.out.println("shutting down server...");
-
-                try {
-                    clientWriter.close();
-                    clientReader.close();
-                    client.close();
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
-            }).start();
-
-            Thread scannerThread = new Thread(()-> {
-
-                Scanner scanner = new Scanner(System.in);
-                while (true) {
-                    String message = scanner.nextLine();
-                    clientWriter.println(message);
-                    clientWriter.flush();
-                }
-            });
-            scannerThread.setDaemon(true);
-            scannerThread.start();
-
+            System.out.println("server is shutting down...");
 
         } catch (IOException e) {
             System.err.println("connection error: " + e.getMessage());
         }
+    }
+
+    private void startScanner() {
+        Thread scannerThread = new Thread(() -> {
+
+            Scanner scanner = new Scanner(System.in);
+            while (true) {
+                String message = scanner.nextLine();
+                if (message.startsWith(Message.MESSAGE_CLIENT_QUITS)) {
+                    sendAll(message);
+                    serverWorks = false;
+                    try {
+                        serverSocket.close();
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
+                } else
+                    sendAll("Server: " + message);
+            }
+        });
+        scannerThread.setDaemon(true);
+        scannerThread.start();
+    }
+
+    public void sendAll(String message) {
+        if (serverWorks)
+            for (ClientHandler client : clients)
+                client.sendMessage(message);
+    }
+
+    public void sendPrivate(String message, ClientHandler receiver) {
+        if (receiver == null)
+            return;
+
+        receiver.sendMessage(message);
+    }
+
+    public void subscribe(ClientHandler client) {
+        clients.add(client);
+        sendListOfClients();
+
+        System.out.println(client.getName() + " connected");
+    }
+
+    public void unsubscribe(ClientHandler client) {
+        clients.remove(client);
+        sendListOfClients();
+
+        System.out.println(client.getName() + " disconnected");
+    }
+
+    private void sendListOfClients() {
+        StringBuilder sb = new StringBuilder();
+        sb.append(Message.MESSAGE_CLIENTS_LIST).append(" ");
+        for (ClientHandler client : clients) {
+            sb.append(client.getName() + " ");
+        }
+        sendAll(sb.toString());
+    }
+
+    public ClientHandler getClientByName(String name) {
+        for (ClientHandler client : clients)
+            if (client.getName().equalsIgnoreCase(name))
+                return client;
+        return null;
     }
 }
