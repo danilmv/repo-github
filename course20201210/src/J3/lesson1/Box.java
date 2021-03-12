@@ -23,15 +23,15 @@ public class Box<T extends Fruit> {
         name = "Коробка№ " + (id++);
     }
 
-    public <Z> boolean add(Z fruit) {
+    public boolean add(T fruit) {
         if (fruits.size() >= capacity || fruit.getClass() != type)
             return false;
 
         return fruits.add((T) fruit);
     }
 
-    public <Z> void remove(Z fruit) {
-        fruits.remove((T) fruit);
+    public void remove(T fruit) {
+        fruits.remove(fruit);
     }
 
     public float getWeight() {
@@ -51,7 +51,6 @@ public class Box<T extends Fruit> {
         return name + ": "
                 + "\nнаполнение: " + fruits.size() + "/" + capacity + " "
                 + "\nтип содержимого: " + type.getSimpleName()
-//                + (fruits.isEmpty() ? " " : fruits.get(0).getName())
                 + "\nсодержимое : " + fruits
                 + "\nВес коробки = " + getWeight()
                 + "\n";
@@ -67,8 +66,8 @@ public class Box<T extends Fruit> {
         return fruits.get(0);
     }
 
-    public boolean moveFromOtherBox(Box<? extends Fruit> box) {
-        Fruit fruit = null;
+    public boolean moveFromOtherBox(Box<T> box) {
+        T fruit = null;
         if (type != box.getType())
             return false;
 

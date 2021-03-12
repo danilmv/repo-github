@@ -5,9 +5,9 @@ import java.util.Iterator;
 import java.util.Random;
 
 public class Packing {
-    private static Random random = new Random();
-    private ArrayList<Box<? extends Fruit>> boxes = new ArrayList<>();
-    Iterator<Box<? extends Fruit>> iterator = boxes.iterator();
+    private static final Random random = new Random();
+    private final ArrayList<Box<? extends Fruit>> boxes = new ArrayList<>();
+    Iterator<Box<? extends Fruit>> iterator;
 
     private Fruit getFruit() {
         if (random.nextInt(2) == 1)
@@ -18,24 +18,17 @@ public class Packing {
 
     private <T extends Fruit> Box<T> getNextBox(T fruit) {
         Box<T> box = null;
-        Box<?> next = null;
+        Box<? extends Fruit> next;
         iterator = boxes.iterator();
         while (iterator.hasNext()) {
             next = iterator.next();
             if (next.getType() == fruit.getClass() && !next.isFull()) {
-                box = (Box<T>) next;
-                iterator = boxes.iterator();
-                break;
+                return (Box<T>) next;
             }
         }
-        if (!iterator.hasNext())
-            iterator = boxes.iterator();
 
-        if (box == null) {
-            box = new Box<T>(fruit.getClass());
-            boxes.add(box);
-        }
-
+        box = new Box<T>(fruit.getClass());
+        boxes.add(box);
         return box;
     }
 
@@ -62,14 +55,6 @@ public class Packing {
         }
 
         return sb.toString();
-    }
-
-    public <T extends Fruit> void getEmptyBox(T fruit) {
-        boxes.add(new Box<T>(fruit.getClass()));
-    }
-
-    public void addBox(Box<? extends Fruit> box) {
-        boxes.add(box);
     }
 
     public Box<?> getBox(int position) {

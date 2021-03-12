@@ -63,7 +63,7 @@ public class MainGenerics {
         Box<Orange> boxOfOranges = new Box<>(Orange.class, 5);
         System.out.println("Берем пустую коробку для апельсинов: " + boxOfOranges);
 
-        Box<?> box = packing.getBox(packing.getSize() - 1);
+        Box box = packing.getBox(packing.getSize() - 1);
         System.out.println("Переложим все фрукты из коробки " + box.getName()
                 + " в коробку " + boxOfOranges.getName() + ": ");
 
