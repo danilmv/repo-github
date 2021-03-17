@@ -9,14 +9,14 @@ public class Packing {
     private final ArrayList<Box<? extends Fruit>> boxes = new ArrayList<>();
     Iterator<Box<? extends Fruit>> iterator;
 
-    private Fruit getFruit() {
+    private <F extends Fruit & ProperFruit> F getFruit() {
         if (random.nextInt(2) == 1)
-            return new Orange();
+            return (F) new Orange();
         else
-            return new Apple();
+            return (F) new Apple();
     }
 
-    private <T extends Fruit> Box<T> getNextBox(T fruit) {
+    private <T extends Fruit & ProperFruit> Box<T> getNextBox(T fruit) {
         Box<T> box = null;
         Box<? extends Fruit> next;
         iterator = boxes.iterator();
@@ -27,19 +27,16 @@ public class Packing {
             }
         }
 
-        box = new Box<T>(fruit.getClass());
+        box = new Box<>();
         boxes.add(box);
         return box;
     }
 
-    public void startPacking(int numberOfFruits) {
-        Fruit fruit;
-        Box<? super Fruit> box;
+    public <F extends Fruit & ProperFruit> void startPacking(int numberOfFruits) {
+        F fruit;
         for (int i = 0; i < numberOfFruits; i++) {
             fruit = getFruit();
-            do {
-                box = getNextBox(fruit.getClass().cast(fruit));
-            } while (!box.add(fruit));
+            while (!getNextBox(fruit).add(fruit));
         }
     }
 

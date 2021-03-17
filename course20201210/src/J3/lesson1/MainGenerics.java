@@ -52,7 +52,7 @@ public class MainGenerics {
 //       Сравнение
         System.out.println(ANSI_GREEN + "** Сравнение коробок по весу **\n" + ANSI_RESET);
         Box<?> box1 = packing.getBox(0);
-        Box<?> box2 = packing.getBox(1);
+        Box<?> box2 = packing.getBox(2);
         if (box1.compare(box2))
             System.out.println(box1.getName() + " равна по весу " + box2.getName());
         else
@@ -60,22 +60,24 @@ public class MainGenerics {
 
 //       Перекладывание
         System.out.println("\n" + ANSI_GREEN + "** Перекладывание фруктов **\n" + ANSI_RESET);
-        Box<Orange> boxOfOranges = new Box<>(Orange.class, 5);
-        System.out.println("Берем пустую коробку для апельсинов: " + boxOfOranges);
+        Box<Orange> boxOfOranges = new Box<>(5);
+        System.out.println("Берем пустую коробку: " + boxOfOranges);
 
         Box box = packing.getBox(packing.getSize() - 1);
-        System.out.println("Переложим все фрукты из коробки " + box.getName()
-                + " в коробку " + boxOfOranges.getName() + ": ");
+        System.out.println("Переложим все фрукты из " + box.getName()
+                + " в " + boxOfOranges.getName() + ": ");
 
         boolean result = boxOfOranges.moveFromOtherBox(box);
         if (result) {
             System.out.println(box);
             System.out.println(boxOfOranges);
         } else {
+            //это из предыдущей реализации, где тип коробки определялся при создании...
+            // теперь он определяется первым фруктом, поэтому этот случай не произойдет
             System.out.println("!!!!" + boxOfOranges.getName() + " предназначена для других фруктов");
 
-            Box<Apple> boxOfApples = new Box<>(Apple.class, 5);
-            System.out.println("\nБерем пустую коробку для яблок: " + boxOfApples + "\nи перекладываем фрукты в нее");
+            Box<Apple> boxOfApples = new Box<>( 5);
+            System.out.println("\nБерем другую коробку: " + boxOfApples + "\nи переложим фрукты в нее");
 
             result = boxOfApples.moveFromOtherBox(box);
             if (result) {

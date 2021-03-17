@@ -1,6 +1,6 @@
 package J3.lesson1;
 
-public class Apple extends Fruit {
+public class Apple extends Fruit implements ProperFruit{
     private static final float WEIGHT = 1.0f;
     private static final String NAME = "Яблоко";
 
