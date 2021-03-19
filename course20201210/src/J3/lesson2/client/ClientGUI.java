@@ -8,6 +8,7 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
+import java.io.BufferedReader;
 import java.io.File;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
@@ -22,6 +23,7 @@ import java.util.List;
 public class ClientGUI extends JFrame {
     private final int NUM_OF_ROWS_TO_SAVE = 100;
     private final String HISTORY_PATH = "src/J3/lesson2/client/history/";
+    private final String HISTORY_MARK = ">>> history from: ";
 
     private JPanel textAreaPanel;
     private JPanel inputTextPanel;
@@ -96,7 +98,13 @@ public class ClientGUI extends JFrame {
     }
 
     private void saveHistory() {
-        String[] rows = textArea.getText().split("\n");
+        if (client.getLogin() == null) return;
+
+        String pattern = HISTORY_MARK + ".*<<<";
+        String text = textArea.getText();
+        if (text.isEmpty())return;
+        String[] split = text.split(pattern);
+        if (split.length <= 0 || split[split.length-1].matches("\\s")) return;
 
         try {
             Files.createDirectories(Paths.get(HISTORY_PATH));
@@ -106,23 +114,19 @@ public class ClientGUI extends JFrame {
 
         Path path = Paths.get(HISTORY_PATH + client.getLogin() + ".txt");
         try {
-            Files.write(path, "".getBytes(StandardCharsets.UTF_8));
-            for (int i = Math.max(0, rows.length - NUM_OF_ROWS_TO_SAVE); i < rows.length; i++) {
-                Files.write(path, rows[i].getBytes(StandardCharsets.UTF_8), StandardOpenOption.APPEND);
-                Files.write(path, "\n".getBytes(StandardCharsets.UTF_8), StandardOpenOption.APPEND);
-            }
-            Files.write(path, (">>> history from:" +LocalDateTime.now() + "<<< \n").getBytes(StandardCharsets.UTF_8), StandardOpenOption.APPEND);
+            Files.write(path, split[split.length-1].getBytes(StandardCharsets.UTF_8), StandardOpenOption.APPEND, StandardOpenOption.CREATE);
+            Files.write(path, (HISTORY_MARK + LocalDateTime.now() + "<<<").getBytes(StandardCharsets.UTF_8), StandardOpenOption.APPEND);
         } catch (IOException e) {
-            System.err.println(e.getMessage());
+            System.err.println("saveHistory: " + e.getMessage());
         }
     }
 
     private void loadHistory() {
         Path path = Paths.get(HISTORY_PATH + client.getLogin() + ".txt");
         try {
-            List<String> rows = Files.readAllLines(path);
-            for (String str : rows) {
-                textArea.append(str);
+            List<String> rows = Files.readAllLines(path, StandardCharsets.UTF_8);
+            for (int i = Math.max(0, rows.size() - NUM_OF_ROWS_TO_SAVE); i < rows.size(); i++) {
+                textArea.append(rows.get(i));
                 textArea.append("\n");
             }
         } catch (IOException e) {
