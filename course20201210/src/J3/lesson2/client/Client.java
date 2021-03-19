@@ -24,6 +24,7 @@ public class Client {
     private boolean authorized = false;
 
     private String name;
+    private String login;
 
     public static void main(String[] args) {
         new Client();
@@ -61,6 +62,7 @@ public class Client {
                             case Message.MESSAGE_AUTHORIZE:
                                 authorized = true;
                                 name = msg.getName();
+                                login = msg.getMessage();
                                 raiseEvent(onAuth, msg.getName());
                                 break;
                             case Message.MESSAGE_TIMEOUT:
@@ -166,5 +168,9 @@ public class Client {
 
     public void setName(String name) {
         this.name = name;
+    }
+
+    public String getLogin() {
+        return login;
     }
 }
