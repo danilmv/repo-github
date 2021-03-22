@@ -55,7 +55,7 @@ public class ClientHandler {
                                         this.login = msg.getName();
                                         this.name = nickname;
                                         if (server.subscribe(this))
-                                            sendMessage(Message.MESSAGE_AUTHORIZE + " " + nickname);
+                                            sendMessage(Message.MESSAGE_AUTHORIZE + " " + nickname + " " + this.login);
                                         else {
                                             authorized = false;
                                         }
