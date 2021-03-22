@@ -8,45 +8,50 @@ public class SQLiteConnection implements AuthorizationCheck {
 
     private SQLiteConnection() throws SQLException {
         connection = getConnection();
-        createDataIfEmpty();
+        if (!isDataExists()) {
+            System.out.println("SQLite: data doesn't exist...");
+            createInitialData();
+        }
     }
 
-    private void createDataIfEmpty() {
-        PreparedStatement stm;
-        try {
-            stm = connection.prepareStatement("SELECT * FROM logins LIMIT 1;");
-            ResultSet rs = stm.executeQuery();
+    private boolean isDataExists() {
+        try (
+                PreparedStatement stm = connection.prepareStatement("SELECT * FROM logins LIMIT 1;");
+                ResultSet rs = stm.executeQuery();
+        ) {
             if (rs.next()) {
-                rs.close();
-                stm.close();
                 System.out.println("SQLite: data exists");
-                return;
-            }
+                return true;
+            } else
+                return false;
         } catch (SQLException throwable) {
             System.err.println(throwable.getMessage());
+            return false;
         }
+    }
 
+    private void createInitialData() {
         try {
-            System.out.println("SQLite: data doesn't exist... creating initial values....");
+            System.out.println("SQLite: creating initial data....");
 
-            stm = connection.prepareStatement("CREATE TABLE IF NOT EXISTS logins" +
+            Statement stm = connection.createStatement();
+            stm.executeUpdate("CREATE TABLE IF NOT EXISTS logins" +
                     "(id integer primary key autoincrement," +
                     "login TEXT NOT NULL," +
                     "password TEXT NOT NULL," +
                     "nickname TEXT NOT NULL);");
-            stm.executeUpdate();
             stm.close();
 
-            stm = connection.prepareStatement("INSERT INTO logins(login, password, nickname) VALUES(?, ?, ?)");
+            PreparedStatement pStm = connection.prepareStatement("INSERT INTO logins(login, password, nickname) VALUES(?, ?, ?)");
 
             for (int i = 0; i < 10; i++) {
-                stm.setString(1, "Test" + i);
-                stm.setString(2, "test" + i);
-                stm.setString(3, "Name" + i);
-                stm.executeUpdate();
+                pStm.setString(1, "Test" + i);
+                pStm.setString(2, "test" + i);
+                pStm.setString(3, "Name" + i);
+                pStm.executeUpdate();
             }
 
-            stm.close();
+            pStm.close();
 
             System.out.println("SQLite: initial data was created");
         } catch (SQLException throwable) {
@@ -54,7 +59,7 @@ public class SQLiteConnection implements AuthorizationCheck {
         }
     }
 
-    public Connection getConnection() throws SQLException {
+    private Connection getConnection() throws SQLException {
         if (connection == null) {
             connection = DriverManager.getConnection("jdbc:sqlite:SQLite.db");
         }
