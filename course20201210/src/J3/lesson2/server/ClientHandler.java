@@ -22,14 +22,10 @@ public class ClientHandler implements Runnable{
         try {
             in = new DataInputStream(socket.getInputStream());
             out = new DataOutputStream(socket.getOutputStream());
-
 //            new Thread(this).start();
-
         } catch (IOException e) {
             e.printStackTrace();
         }
-
-
     }
 
     @Override
