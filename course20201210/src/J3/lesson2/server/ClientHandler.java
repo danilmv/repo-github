@@ -5,7 +5,7 @@ import java.io.DataOutputStream;
 import java.io.IOException;
 import java.net.Socket;
 
-public class ClientHandler implements Runnable{
+public class ClientHandler implements Runnable {
     private final Socket socket;
     private String name;
     private String login;
@@ -28,8 +28,37 @@ public class ClientHandler implements Runnable{
         }
     }
 
+    public void sendMessage(String message) {
+        try {
+            out.writeUTF(message);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    private void close() {
+
+        System.out.println("connection with " + name + " is closed.");
+
+        try {
+            socket.close();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+        server.unsubscribe(this);
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public String getLogin() {
+        return login;
+    }
+
     @Override
-    public void run(){
+    public void run() {
         Message msg = new Message();
         String clientMessage;
         boolean connected = true;
@@ -119,34 +148,5 @@ public class ClientHandler implements Runnable{
         }
         close();
 
-    }
-
-    public void sendMessage(String message) {
-        try {
-            out.writeUTF(message);
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-    }
-
-    private void close() {
-
-        System.out.println("connection with " + name + " is closed.");
-
-        try {
-            socket.close();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-
-        server.unsubscribe(this);
-    }
-
-    public String getName() {
-        return name;
-    }
-
-    public String getLogin() {
-        return login;
     }
 }
