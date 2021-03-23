@@ -21,10 +21,9 @@ public class WaitingThreads implements Runnable {
                 if (lastSymbol == previousSymbol) {
                     System.out.print(symbol);
                     lastSymbol = symbol;
+                    SYNC_MONITOR.notifyAll();
                 } else
                     i--;
-
-                SYNC_MONITOR.notifyAll();
 
                 try {
                     SYNC_MONITOR.wait();
