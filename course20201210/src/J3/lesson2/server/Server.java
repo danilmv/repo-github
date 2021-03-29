@@ -9,6 +9,8 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Scanner;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 public class Server {
     public static final int SERVER_PORT = 5000;
@@ -23,6 +25,8 @@ public class Server {
     private List<String> logins = new ArrayList<>();
 
     private AuthorizationCheck checkFromDB;
+
+    private ExecutorService clientExecutor;
 
     public Server() {
         startServer();
@@ -46,17 +50,20 @@ public class Server {
             }
             startScanner();
 
+            clientExecutor = Executors.newCachedThreadPool();
+
             serverSocket = new ServerSocket(SERVER_PORT);
             System.out.println("Waiting for clients...");
             while (serverWorks) {
 
                 Socket client = serverSocket.accept();
-                new ClientHandler(client, "Client" + ++clientID, this);
+                clientExecutor.submit(new ClientHandler(client, "Client" + ++clientID, this));
             }
 
             System.out.println("server is shutting down...");
 
             checkFromDB.close();
+            clientExecutor.shutdown();
 
         } catch (IOException e) {
             System.err.println("connection error: " + e.getMessage());
