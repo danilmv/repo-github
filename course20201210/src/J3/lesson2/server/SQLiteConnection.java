@@ -9,7 +9,7 @@ public class SQLiteConnection implements AuthorizationCheck {
     private SQLiteConnection() throws SQLException {
         connection = getConnection();
         if (!isDataExists()) {
-            System.out.println("SQLite: data doesn't exist...");
+            Server.getLOGGER().config("SQLite: data doesn't exist...");
             createInitialData();
         }
     }
@@ -20,7 +20,7 @@ public class SQLiteConnection implements AuthorizationCheck {
                 ResultSet rs = stm.executeQuery();
         ) {
             if (rs.next()) {
-                System.out.println("SQLite: data exists");
+                Server.getLOGGER().config("SQLite: data exists");
                 return true;
             } else
                 return false;
@@ -32,7 +32,7 @@ public class SQLiteConnection implements AuthorizationCheck {
 
     private void createInitialData() {
         try {
-            System.out.println("SQLite: creating initial data....");
+            Server.getLOGGER().config("SQLite: creating initial data....");
 
             Statement stm = connection.createStatement();
             stm.executeUpdate("CREATE TABLE IF NOT EXISTS logins" +
@@ -53,9 +53,9 @@ public class SQLiteConnection implements AuthorizationCheck {
 
             pStm.close();
 
-            System.out.println("SQLite: initial data was created");
+            Server.getLOGGER().config("SQLite: initial data was created");
         } catch (SQLException throwable) {
-            System.err.println(throwable.getMessage());
+            Server.getLOGGER().severe(throwable.getMessage());
         }
     }
 
@@ -88,7 +88,7 @@ public class SQLiteConnection implements AuthorizationCheck {
             rs.close();
             stm.close();
         } catch (SQLException throwable) {
-            System.err.println(throwable.getMessage());
+            Server.getLOGGER().severe(throwable.getMessage());
         }
 
         return null;
@@ -114,7 +114,7 @@ public class SQLiteConnection implements AuthorizationCheck {
             stm.executeUpdate();
             stm.close();
         } catch (SQLException throwables) {
-            System.err.println(throwables.getMessage());
+            Server.getLOGGER().severe(throwables.getMessage());
         }
     }
 }

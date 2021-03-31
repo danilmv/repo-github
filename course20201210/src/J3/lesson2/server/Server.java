@@ -1,19 +1,24 @@
 package J3.lesson2.server;
 
-import J3.lesson2.client.Client;
-
 import java.io.IOException;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.sql.SQLException;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Scanner;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.logging.*;
 
 public class Server {
     public static final int SERVER_PORT = 5000;
+    private static final Logger LOGGER = Logger.getLogger(Server.class.getName());
+
+    private static final String ANSI_RESET = "\u001B[0m";
+    private static final String ANSI_GREEN = "\u001B[32m";
 
     private int clientID = 0;
     private boolean serverWorks = true;
@@ -29,6 +34,28 @@ public class Server {
     private ExecutorService clientExecutor;
 
     public Server() {
+        LOGGER.setLevel(Level.ALL);
+        Handler handler = new ConsoleHandler();
+        handler.setLevel(Level.ALL);
+        handler.setFormatter(new Formatter() {
+            @Override
+            public String format(LogRecord record) {
+                String color;
+                switch (record.getLevel().intValue()) {
+                    case ClientHandler.CLIENT_AUTH_LEVEL:
+                        color = ANSI_GREEN;
+                        break;
+                    default:
+                        color = ANSI_RESET;
+                        break;
+                }
+                return String.format("%s%s:\t%10s %20s : %s\n", color,
+                        LocalDateTime.now().format(DateTimeFormatter.ISO_DATE), record.getLevel(),
+                        record.getSourceMethodName(), record.getMessage());
+            }
+        });
+        LOGGER.setUseParentHandlers(false);
+        LOGGER.addHandler(handler);
         startServer();
     }
 
@@ -36,15 +63,15 @@ public class Server {
         try {
             try {
                 checkFromDB = new MySQLConnection();
-                System.out.println("MySQL connected");
+                LOGGER.config("MySQL connected");
             } catch (SQLException throwable) {
                 try {
-                    System.out.println("MySQL is not accessible... trying SQLite...");
+                    LOGGER.config("MySQL is not accessible... trying SQLite...");
                     checkFromDB = SQLiteConnection.getInstance();
-                    System.out.println("SQLite connected");
+                    LOGGER.config("SQLite connected");
                 } catch (SQLException throwable2) {
-                    System.out.println("DB is not accessible: " + throwable2.getMessage());
-                    System.out.println("using dummy server");
+                    LOGGER.warning("DB is not accessible: " + throwable2.getMessage());
+                    LOGGER.config("using dummy server");
                     checkFromDB = new DummyAuthCheck();
                 }
             }
@@ -53,20 +80,20 @@ public class Server {
             clientExecutor = Executors.newCachedThreadPool();
 
             serverSocket = new ServerSocket(SERVER_PORT);
-            System.out.println("Waiting for clients...");
+            LOGGER.info("Waiting for clients...");
             while (serverWorks) {
 
                 Socket client = serverSocket.accept();
                 clientExecutor.submit(new ClientHandler(client, "Client" + ++clientID, this));
             }
 
-            System.out.println("server is shutting down...");
+            LOGGER.info("server is shutting down...");
 
             checkFromDB.close();
             clientExecutor.shutdown();
 
         } catch (IOException e) {
-            System.err.println("connection error: " + e.getMessage());
+            LOGGER.severe("connection error: " + e.getMessage());
         }
     }
 
@@ -114,7 +141,7 @@ public class Server {
         clients.add(client);
         sendListOfClients();
 
-        System.out.println(client.getName() + " subscribed");
+        LOGGER.info(client.getName() + " subscribed");
 
         sendAll("Server: " + client.getName() + " connected");
 
@@ -127,7 +154,7 @@ public class Server {
         clients.remove(client);
         sendListOfClients();
 
-        System.out.println(client.getName() + " unsubscribed");
+        LOGGER.info(client.getName() + " unsubscribed");
         sendAll("Server: " + client.getName() + " disconnected");
     }
 
@@ -165,5 +192,9 @@ public class Server {
 
         if (checkFromDB != null)
             checkFromDB.changeNickname(client.getLogin(), client.getName());
+    }
+
+    public static Logger getLOGGER() {
+        return LOGGER;
     }
 }

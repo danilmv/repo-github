@@ -4,6 +4,7 @@ import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
 import java.net.Socket;
+import java.util.logging.Level;
 
 public class ClientHandler implements Runnable {
     private final Socket socket;
@@ -12,6 +13,10 @@ public class ClientHandler implements Runnable {
     private DataInputStream in;
     private DataOutputStream out;
     private final Server server;
+
+    public static final int CLIENT_AUTH_LEVEL = 556;
+    private static final Level clientMessageLevel = new MyMessageLevel("CLNTMSG", 555);
+    private static final Level clientAuthorizedLevel = new MyMessageLevel("CLNTAUTH", CLIENT_AUTH_LEVEL);
 
     private final long TIMEOUT = 120000;
 
@@ -38,7 +43,7 @@ public class ClientHandler implements Runnable {
 
     private void close() {
 
-        System.out.println("connection with " + name + " is closed.");
+        Server.getLOGGER().info("connection with " + name + " is closed.");
 
         try {
             socket.close();
@@ -66,13 +71,13 @@ public class ClientHandler implements Runnable {
 
         long startTime = System.currentTimeMillis();
 
-        System.out.println(this.name + " connected");
+        Server.getLOGGER().info(this.name + " connected");
 
         try {
             while (connected && server.isServerWorks()) {
                 if (!authorized) {
                     if (System.currentTimeMillis() - startTime > TIMEOUT) {
-                        System.out.println(this.name + " timed out");
+                        Server.getLOGGER().info(this.name + " timed out");
                         sendMessage(Message.MESSAGE_TIMEOUT + " Server: timeout");
                         connected = false;
                     }
@@ -86,7 +91,7 @@ public class ClientHandler implements Runnable {
                             String nickname = server.checkAuthorization(msg.getName(), msg.getMessage());
                             authorized = nickname != null;
                             if (authorized) {
-                                System.out.println(name + " => " + nickname);
+                                Server.getLOGGER().log(clientAuthorizedLevel, name + " => " + nickname);
                                 this.login = msg.getName();
                                 this.name = nickname;
                                 if (server.subscribe(this))
@@ -106,7 +111,7 @@ public class ClientHandler implements Runnable {
                         case Message.MESSAGE_PRIVATE:
                             ClientHandler receiver = server.getClientByName(msg.getName());
                             clientMessage = this.name + ": " + msg.getMessage();
-                            System.out.println("<to " + msg.getName() + ">: " + clientMessage);
+                            Server.getLOGGER().log(clientMessageLevel, "<to " + msg.getName() + ">: " + clientMessage);
 
                             if (receiver != null) {
                                 server.sendPrivate(msg.getCommand() + " <to " + msg.getName() + ">: " + clientMessage, this);
@@ -130,7 +135,7 @@ public class ClientHandler implements Runnable {
                         default:
                             clientMessage = this.name + ": " + msg.getMessage();
 
-                            System.out.println(clientMessage);
+                            Server.getLOGGER().log(clientMessageLevel, clientMessage);
                             server.sendAll(clientMessage);
                             break;
                     }
@@ -144,9 +149,16 @@ public class ClientHandler implements Runnable {
                 }
             }
         } catch (IOException e) {
-            System.err.println(name + " connection error: " + e.getMessage());
+            Server.getLOGGER().severe(name + " connection error: " + e.getMessage());
         }
         close();
 
+    }
+}
+
+class MyMessageLevel extends Level {
+
+    protected MyMessageLevel(String name, int value) {
+        super(name, value);
     }
 }
