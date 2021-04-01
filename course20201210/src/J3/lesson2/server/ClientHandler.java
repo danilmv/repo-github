@@ -13,6 +13,7 @@ public class ClientHandler implements Runnable {
     private DataInputStream in;
     private DataOutputStream out;
     private final Server server;
+    private boolean authorized = false;
 
     public static final int CLIENT_AUTH_LEVEL = 556;
     private static final Level clientMessageLevel = new MyMessageLevel("CLNTMSG", 555);
@@ -29,7 +30,7 @@ public class ClientHandler implements Runnable {
             out = new DataOutputStream(socket.getOutputStream());
 //            new Thread(this).start();
         } catch (IOException e) {
-            e.printStackTrace();
+            Server.getLOGGER().severe(e.getMessage());
         }
     }
 
@@ -37,7 +38,8 @@ public class ClientHandler implements Runnable {
         try {
             out.writeUTF(message);
         } catch (IOException e) {
-            e.printStackTrace();
+            Server.getLOGGER().severe("error sending message to client: " + e.getMessage());
+            close();
         }
     }
 
@@ -48,7 +50,7 @@ public class ClientHandler implements Runnable {
         try {
             socket.close();
         } catch (IOException e) {
-            e.printStackTrace();
+            Server.getLOGGER().severe("error closing socket with client: " + e.getMessage());
         }
 
         server.unsubscribe(this);
@@ -67,7 +69,6 @@ public class ClientHandler implements Runnable {
         Message msg = new Message();
         String clientMessage;
         boolean connected = true;
-        boolean authorized = false;
 
         long startTime = System.currentTimeMillis();
 
@@ -153,6 +154,10 @@ public class ClientHandler implements Runnable {
         }
         close();
 
+    }
+
+    public boolean isAuthorized() {
+        return authorized;
     }
 }
 

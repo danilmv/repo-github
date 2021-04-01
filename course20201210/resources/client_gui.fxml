@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+
+<VBox fx:id="mainPanel" alignment="center" xmlns:fx="http://javafx.com/fxml/1" xmlns="http://javafx.com/javafx/11.0.1" fx:controller="J3.lesson2.client.ClientJavaFXController">
+    <VBox fx:id="authPanel">
+        <TextField fx:id="loginField" promptText="Логин" HBox.hgrow="ALWAYS" />
+        <PasswordField fx:id="passField" onAction="#sendAuth" promptText="Пароль" HBox.hgrow="ALWAYS" />
+        <Button onAction="#sendAuth" text="Подключиться" HBox.hgrow="ALWAYS" />
+    </VBox>
+
+    <HBox fx:id="chatPanel" VBox.vgrow="ALWAYS">
+        <TextArea fx:id="textArea" editable="false" HBox.hgrow="ALWAYS" />
+        <ListView fx:id="clientsList" maxWidth="200" minWidth="200" onMouseClicked="#onMouseClickedList" />
+    </HBox>
+
+    <HBox fx:id="msgPanel">
+        <TextField fx:id="msgField" onAction="#sendMsg" promptText="Введите сообщение..." HBox.hgrow="ALWAYS" />
+        <Button onAction="#sendMsg" text="Отправить" />
+    </HBox>
+</VBox>

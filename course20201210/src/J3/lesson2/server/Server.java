@@ -49,9 +49,9 @@ public class Server {
                         color = ANSI_RESET;
                         break;
                 }
-                return String.format("%s%s:\t%10s %20s : %s\n", color,
-                        LocalDateTime.now().format(DateTimeFormatter.ISO_DATE), record.getLevel(),
-                        record.getSourceMethodName(), record.getMessage());
+                return String.format("%s%s:\t%10s %20s : %s\n%s", color,
+                        LocalDateTime.now().format(DateTimeFormatter.ISO_TIME), record.getLevel(),
+                        record.getSourceMethodName(), record.getMessage(), ANSI_RESET);
             }
         });
         LOGGER.setUseParentHandlers(false);
@@ -155,7 +155,8 @@ public class Server {
         sendListOfClients();
 
         LOGGER.info(client.getName() + " unsubscribed");
-        sendAll("Server: " + client.getName() + " disconnected");
+        if (client.isAuthorized())
+            sendAll("Server: " + client.getName() + " disconnected");
     }
 
     private void sendListOfClients() {
