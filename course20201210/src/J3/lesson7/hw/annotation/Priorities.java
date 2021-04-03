@@ -1,6 +1,6 @@
 package J3.lesson7.hw.annotation;
 
-public enum PRIORITIES {
+public enum Priorities {
     ONE(1),
     TWO(2),
     THREE(3),
@@ -14,7 +14,7 @@ public enum PRIORITIES {
 
     private final int value;
 
-    PRIORITIES(int value) {
+    Priorities(int value) {
         this.value = value;
     }
 
